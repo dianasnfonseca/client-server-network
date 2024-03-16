@@ -1,30 +1,39 @@
 import socket
 import json
 import configparser
+from decryption import decrypt_data
 
-def deserialize_data(serialized_data, format='json'):
+def deserialize_data(serialized_data, format='json', encryption_key=None):
     """
     Deserialize serialized data to dictionary based on specified format.
 
     Args:
         serialized_data (str): Serialized data.
         format (str): Serialization format ('json', 'binary', or 'xml').
+        encryption_key (bytes): Encryption key used for decryption.
 
     Returns:
         dict: Deserialized data.
     """
     if format == 'json':
         return json.loads(serialized_data)
-    # Implement deserialization for other formats (binary, XML) if needed
+    elif format == 'binary':
+        # Decrypt binary data if encryption key is provided
+        if encryption_key:
+            return decrypt_data(serialized_data, encryption_key)
+        else:
+            raise ValueError("Encryption key is required for decrypting binary data.")
+    # Implement deserialization for other formats (XML) if needed
     else:
         raise ValueError("Invalid serialization format.")
 
-def receive_data(client_socket):
+def receive_data(client_socket, encryption_key):
     """
     Receive and deserialize data from the client.
 
     Args:
         client_socket: Socket object for the client connection.
+        encryption_key (bytes): Encryption key used for decryption.
 
     Returns:
         dict: Deserialized data (dictionary).
@@ -39,8 +48,8 @@ def receive_data(client_socket):
         serialized_data = client_socket.recv(1024).decode()
         print("Dictionary received from client")
 
-        # Deserialize the received data (JSON string to dictionary)
-        data = deserialize_data(serialized_data, format_choice)
+        # Deserialize the received data
+        data = deserialize_data(serialized_data, format_choice, encryption_key)
 
         # Receive file data from the client
         file_data = b""
@@ -60,12 +69,16 @@ def receive_data(client_socket):
 
 if __name__ == "__main__":
     try:
+        # Load server configuration
+        config = configparser.ConfigParser()
+        config.read('config/server_config.ini')
+
+        # Read encryption key from file
+        with open('../client/config/encryption_key.txt', 'rb') as key_file:
+            encryption_key = key_file.read()
+
         # Create socket object
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-            # Load server configuration
-            config = configparser.ConfigParser()
-            config.read('config/server_config.ini')
-
             # Extract server IP and port from configuration
             SERVER_IP = '127.0.0.1'
             SERVER_PORT_STRING = config['SERVER']['PORT'].strip()
@@ -83,7 +96,7 @@ if __name__ == "__main__":
                 print(f"Connection established with {client_address}")
 
                 # Receive and process data from the client
-                received_data, received_file_data = receive_data(client_socket)
+                received_data, received_file_data = receive_data(client_socket, encryption_key)
                 if received_data:
                     print("Received dictionary:", received_data)
                 if received_file_data:

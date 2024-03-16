@@ -1,10 +1,11 @@
 import socket
 import configparser
 from serialization import serialize_data
+from encryption import encrypt_data  # Import the encryption function
 
 def send_data(data, filename):
     """
-    Send serialized data and file contents to the server.
+    Send serialized and encrypted data along with file contents to the server.
 
     Args:
         data: Data (dictionary) to be sent to the server.
@@ -45,9 +46,15 @@ def send_data(data, filename):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
             # Connect to server
             client_socket.connect((SERVER_IP, SERVER_PORT))
+            print("Connected to server.")
 
             # Serialize data based on chosen format
             serialized_data = serialize_data(data, serialization_format)
+            print("Data serialized.")
+
+            # Encrypt the serialized data
+            encrypted_data = encrypt_data(serialized_data)
+            print("Data encrypted.")
 
             # Read file contents
             with open(filename, 'rb') as file:
@@ -55,14 +62,15 @@ def send_data(data, filename):
 
             # Send serialization format to server
             client_socket.sendall(serialization_format.encode())
+            print("Serialization format sent to server.")
 
-            # Send serialized data to server
-            client_socket.sendall(serialized_data)
-            print("Data sent successfully.")
+            # Send encrypted data to server
+            client_socket.sendall(encrypted_data)
+            print("Encrypted data sent to server.")
 
             # Send file data to server
             client_socket.sendall(file_data)
-            print("File sent successfully.")
+            print("File data sent to server.")
 
     except Exception as e:
         print(f"Error occurred: {e}")
