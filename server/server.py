@@ -23,19 +23,31 @@ def receive_data(client_socket):
 
     Returns:
         dict: Deserialized data (dictionary).
+        bytes: Contents of the text file.
     """
     try:
-        # Receive serialized data from the client
+        # Receive serialized data from the client (dictionary)
         serialized_data = client_socket.recv(1024).decode()
-        print("Data received from client")
+        print("Dictionary received from client")
 
         # Deserialize the received data (JSON string to dictionary)
         data = deserialize_data(serialized_data)
-        return data
+
+        # Receive file data from the client
+        file_data = b""
+        while True:
+            chunk = client_socket.recv(1024)
+            if not chunk:
+                break
+            file_data += chunk
+
+        print("File received from client")
+        
+        return data, file_data
 
     except Exception as e:
         print(f"Error occurred during data reception: {e}")
-        return None
+        return None, None
 
 if __name__ == "__main__":
     try:
@@ -62,9 +74,11 @@ if __name__ == "__main__":
                 print(f"Connection established with {client_address}")
 
                 # Receive and process data from the client
-                received_data = receive_data(client_socket)
+                received_data, received_file_data = receive_data(client_socket)
                 if received_data:
-                    print("Received data:", received_data)
+                    print("Received dictionary:", received_data)
+                if received_file_data:
+                    print("Received file data:", received_file_data)
 
     except socket.error as e:
         print(f"Socket error occurred: {e}")

@@ -14,12 +14,13 @@ def serialize_data(data):
     """
     return json.dumps(data)
 
-def send_data(data):
+def send_data(data, filename):
     """
-    Send serialized data to the server.
+    Send serialized data and file contents to the server.
 
     Args:
         data: Data (dictionary) to be sent to the server.
+        filename (str): Name of the file to send.
 
     Returns:
         None
@@ -42,9 +43,17 @@ def send_data(data):
             # Serialize data (dictionary to JSON string)
             serialized_data = serialize_data(data)
 
+            # Read file contents
+            with open(filename, 'rb') as file:
+                file_data = file.read()
+
             # Send serialized data to server
             client_socket.sendall(serialized_data.encode())
-            print("Data sent successfully.")
+            print("Dictionary sent successfully.")
+
+            # Send file data to server
+            client_socket.sendall(file_data)
+            print("File sent successfully.")
 
     except Exception as e:
         print(f"Error occurred: {e}")
@@ -52,4 +61,5 @@ def send_data(data):
 if __name__ == "__main__":
     # Sample data to send
     data = {'name': 'Diana', 'role': 'SD & tester'}
-    send_data(data)
+    filename = "sample.txt"
+    send_data(data, filename)
