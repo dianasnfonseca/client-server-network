@@ -1,14 +1,25 @@
 import socket
+import json  # Import JSON module for serialization
 import configparser
-from serialization import serialize_data
-from encryption import encrypt_data
+
+def serialize_data(data):
+    """
+    Serialize data (dictionary) to JSON string.
+
+    Args:
+        data: Data (dictionary) to be serialized.
+
+    Returns:
+        str: Serialized data (JSON string).
+    """
+    return json.dumps(data)
 
 def send_data(data):
     """
-    Send data to the server.
+    Send serialized data to the server.
 
     Args:
-        data: Data to be sent to the server
+        data: Data (dictionary) to be sent to the server.
 
     Returns:
         None
@@ -19,8 +30,7 @@ def send_data(data):
         config.read('config/client_config.ini')
 
         # Extract server IP and port from configuration
-        #SERVER_IP = config['SERVER']['IP']
-        SERVER_IP = '127.0.0.1'  # Change this to your machine's IP address if needed
+        SERVER_IP = '127.0.0.1'
         SERVER_PORT_STRING = config['SERVER']['PORT'].strip()
         SERVER_PORT = int(''.join(filter(str.isdigit, SERVER_PORT_STRING)))
 
@@ -29,12 +39,11 @@ def send_data(data):
             # Connect to server
             client_socket.connect((SERVER_IP, SERVER_PORT))
 
-            # Serialize and encrypt data
+            # Serialize data (dictionary to JSON string)
             serialized_data = serialize_data(data)
-            encrypted_data = encrypt_data(serialized_data)
 
-            # Send encrypted data to server
-            client_socket.sendall(encrypted_data)
+            # Send serialized data to server
+            client_socket.sendall(serialized_data.encode())
             print("Data sent successfully.")
 
     except Exception as e:
