@@ -42,7 +42,7 @@ def receive_data(client_socket, encryption_key):
             print("Decryption failed. Unable to process the data.")
 
     except Exception as e:
-        print(f"Error occurred: {e}")
+        print(f"Error occurred during data reception and processing: {e}")
 
 if __name__ == "__main__":
     # Load server configuration
