@@ -8,7 +8,8 @@ config = configparser.ConfigParser()
 config.read('config/client_config.ini')
 
 # Extract server IP and port from configuration
-SERVER_IP = config['SERVER']['IP']
+#SERVER_IP = config['SERVER']['IP']
+SERVER_IP = '127.0.0.1'  # Change this to your machine's IP address if needed
 SERVER_PORT_STRING = config['SERVER']['PORT'].strip()
 SERVER_PORT = int(''.join(filter(str.isdigit, SERVER_PORT_STRING)))
 
