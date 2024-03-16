@@ -8,8 +8,29 @@ from logging import log_data
 config = configparser.ConfigParser()
 config.read('config/server_config.ini')
 
-SERVER_IP = config['SERVER']['IP']
-SERVER_PORT = int(config['SERVER']['PORT'])
+# Extract server IP and port from configuration
+#SERVER_IP = config['SERVER']['IP']
+SERVER_IP = '127.0.0.1'  # Change this to your machine's IP address if needed
+SERVER_PORT_STRING = config['SERVER']['PORT'].strip()
+SERVER_PORT = int(''.join(filter(str.isdigit, SERVER_PORT_STRING)))
+
+try:
+    # Create socket object
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+        # Bind socket to server address
+        server_socket.bind((SERVER_IP, SERVER_PORT))
+        # Listen for incoming connections
+        server_socket.listen(5)
+        print(f"Server is listening on {SERVER_IP}:{SERVER_PORT}")
+
+        # Accept incoming connection
+        client_socket, client_address = server_socket.accept()
+        print(f"Connection established with {client_address}")
+        # Continue with handling the connection...
+except socket.error as e:
+    print(f"Socket error occurred: {e}")
+except Exception as e:
+    print(f"Error occurred: {e}")
 
 def receive_data():
     """
