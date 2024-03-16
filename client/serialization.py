@@ -1,4 +1,3 @@
-import pickle
 import json
 import xml.etree.ElementTree as ET
 
@@ -8,7 +7,7 @@ def serialize_data(data, format='json'):
 
     Args:
         data: Dictionary containing data to be serialized.
-        format (str): Serialization format ('json', 'xml', or 'pickle'). Defaults to 'json'.
+        format (str): Serialization format ('json', 'xml', or 'binary'). Defaults to 'json'.
 
     Returns:
         bytes: Serialized data in bytes format.
@@ -27,10 +26,15 @@ def serialize_data(data, format='json'):
             # Convert XML element tree to bytes
             xml_data = ET.tostring(root)
             return xml_data
-        else:
-            # Serialize data using pickle (default)
-            serialized_data = pickle.dumps(data)
+        elif format == 'binary':
+            # Serialize data using pickle
+            # Note: You can replace this with your binary serialization method
+            # serialized_data = pickle.dumps(data)
+            serialized_data = bytes(str(data), 'utf-8')
             return serialized_data
+        else:
+            # Invalid format
+            raise ValueError("Invalid serialization format.")
     except Exception as e:
         # Handle serialization errors
         print(f"Serialization error: {e}")

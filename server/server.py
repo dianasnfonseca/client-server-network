@@ -1,18 +1,23 @@
 import socket
-import json  # Import JSON module for deserialization
+import json
 import configparser
 
-def deserialize_data(serialized_data):
+def deserialize_data(serialized_data, format='json'):
     """
-    Deserialize JSON string to data (dictionary).
+    Deserialize serialized data to dictionary based on specified format.
 
     Args:
-        serialized_data (str): Serialized data (JSON string).
+        serialized_data (str): Serialized data.
+        format (str): Serialization format ('json', 'binary', or 'xml').
 
     Returns:
-        dict: Deserialized data (dictionary).
+        dict: Deserialized data.
     """
-    return json.loads(serialized_data)
+    if format == 'json':
+        return json.loads(serialized_data)
+    # Implement deserialization for other formats (binary, XML) if needed
+    else:
+        raise ValueError("Invalid serialization format.")
 
 def receive_data(client_socket):
     """
@@ -26,12 +31,16 @@ def receive_data(client_socket):
         bytes: Contents of the text file.
     """
     try:
+        # Receive serialization format from the client
+        format_choice = client_socket.recv(1024).decode()
+        print("Serialization format received from client:", format_choice)
+
         # Receive serialized data from the client (dictionary)
         serialized_data = client_socket.recv(1024).decode()
         print("Dictionary received from client")
 
         # Deserialize the received data (JSON string to dictionary)
-        data = deserialize_data(serialized_data)
+        data = deserialize_data(serialized_data, format_choice)
 
         # Receive file data from the client
         file_data = b""
