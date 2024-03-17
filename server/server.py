@@ -31,7 +31,7 @@ def receive_data(client_socket):
                 break
             serialized_data += chunk
         
-        print(f"Serialized data received from client ({len(serialized_data)} bytes):", serialized_data.decode())
+        print(f"Serialized data received from client ({len(serialized_data)} bytes):", serialized_data)
 
         # Process received data
         data = deserialize_data(serialized_data, format_choice)

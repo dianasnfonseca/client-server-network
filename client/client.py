@@ -32,6 +32,9 @@ def send_data(data, serialization_format):
             # Serialize data based on chosen format
             serialized_data = serialize_data(data, serialization_format)
             
+            # Print the serialization format and data
+            print(f"Data serialized to {serialization_format.upper()} format:", serialized_data)
+
             # Combine serialization format and length of serialized data
             message = f"{serialization_format} {len(serialized_data)}"
             client_socket.sendall(message.encode())
