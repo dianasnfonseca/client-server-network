@@ -1,6 +1,7 @@
 import socket
 import configparser
 from serialization import deserialize_data
+from decryption import decrypt_data
 
 def receive_data(client_socket):
     try:
@@ -30,8 +31,28 @@ def receive_data(client_socket):
         if data:
             print("Received dictionary:", data)
 
+        # Receive file if sent
+        file_length = int(client_socket.recv(1024).decode())
+        print("Length of file data:", file_length)
+        file_data = b""
+        while len(file_data) < file_length:
+            chunk = client_socket.recv(min(file_length - len(file_data), 1024))
+            if not chunk:
+                break
+            file_data += chunk
+        print("File data received from client:", file_data)
+
+        # Decrypt the file data if encrypted
+        decrypt_file = config.getboolean('SERVER', 'DECRYPT_FILE')
+        if decrypt_file:
+            encryption_key_path = config['ENCRYPTION']['KEY_PATH']
+            with open(encryption_key_path, 'rb') as key_file:
+                encryption_key = key_file.read()
+            decrypted_file_data = decrypt_data(file_data, encryption_key)
+            print("Decrypted file data:", decrypted_file_data.decode())
+
     except Exception as e:
-        print(f"Deserialization error: {e}")
+        print(f"Error occurred: {e}")
 
 if __name__ == "__main__":
     try:
