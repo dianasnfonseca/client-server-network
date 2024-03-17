@@ -1,81 +1,51 @@
 import socket
-import json
 import configparser
-from decryption import decrypt_data
+from serialization import deserialize_data
 
-def deserialize_data(serialized_data, format='json', encryption_key=None):
+def receive_data(client_socket):
     """
-    Deserialize serialized data to dictionary based on specified format.
-
-    Args:
-        serialized_data (str): Serialized data.
-        format (str): Serialization format ('json', 'binary', or 'xml').
-        encryption_key (bytes): Encryption key used for decryption.
-
-    Returns:
-        dict: Deserialized data.
-    """
-    if format == 'json':
-        return json.loads(serialized_data)
-    elif format == 'binary':
-        # Decrypt binary data if encryption key is provided
-        if encryption_key:
-            return decrypt_data(serialized_data, encryption_key)
-        else:
-            raise ValueError("Encryption key is required for decrypting binary data.")
-    # Implement deserialization for other formats (XML) if needed
-    else:
-        raise ValueError("Invalid serialization format.")
-
-def receive_data(client_socket, encryption_key):
-    """
-    Receive and deserialize data from the client.
+    Receive and process data from the client.
 
     Args:
         client_socket: Socket object for the client connection.
-        encryption_key (bytes): Encryption key used for decryption.
 
     Returns:
-        dict: Deserialized data (dictionary).
-        bytes: Contents of the text file.
+        None
     """
     try:
-        # Receive serialization format from the client
-        format_choice = client_socket.recv(1024).decode()
+        # Receive serialization format and length of serialized data from the client
+        format_length_data = client_socket.recv(1024).decode().strip()
+        format_choice, length_data = format_length_data.split(" ")
         print("Serialization format received from client:", format_choice)
+        print("Received length data:", length_data)
+        
+        # Convert length_data to integer
+        length = int(length_data)
+        print("Length of serialized data:", length)
 
-        # Receive serialized data from the client (dictionary)
-        serialized_data = client_socket.recv(1024).decode()
-        print("Dictionary received from client")
-
-        # Deserialize the received data
-        data = deserialize_data(serialized_data, format_choice, encryption_key)
-
-        # Receive file data from the client
-        file_data = b""
-        while True:
-            chunk = client_socket.recv(1024)
+        # Receive serialized data from the client
+        serialized_data = b""
+        while len(serialized_data) < length:
+            chunk = client_socket.recv(min(length - len(serialized_data), 1024))
             if not chunk:
                 break
-            file_data += chunk
-
-        print("File received from client")
+            serialized_data += chunk
         
-        return data, file_data
+        print(f"Serialized data received from client ({len(serialized_data)} bytes):", serialized_data.decode())
+
+        # Process received data
+        data = deserialize_data(serialized_data, format_choice)
+        if data:
+            print("Received dictionary:", data)
 
     except Exception as e:
-        print(f"Error occurred during data reception: {e}")
-        return None, None
+        print(f"Deserialization error: {e}")
 
 if __name__ == "__main__":
     try:
         # Load server configuration
         config = configparser.ConfigParser()
         config.read('config/server_config.ini')
-
-        # Read encryption key from file
-        with open('../client/config/encryption_key.txt', 'rb') as key_file:
-            encryption_key = key_file.read()
 
         # Create socket object
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
@@ -96,11 +66,7 @@ if __name__ == "__main__":
                 print(f"Connection established with {client_address}")
 
                 # Receive and process data from the client
-                received_data, received_file_data = receive_data(client_socket, encryption_key)
-                if received_data:
-                    print("Received dictionary:", received_data)
-                if received_file_data:
-                    print("Received file data:", received_file_data)
+                receive_data(client_socket)
 
     except socket.error as e:
         print(f"Socket error occurred: {e}")

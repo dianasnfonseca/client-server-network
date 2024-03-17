@@ -14,21 +14,13 @@ def deserialize_data(data, format='json'):
         dict: Deserialized data as a dictionary.
     """
     try:
-        # Check the serialization format
         if format == 'json':
-            # Deserialize JSON data
-            deserialized_data = json.loads(data.decode('utf-8'))
-            return deserialized_data
+            return json.loads(data.decode('utf-8'))
         elif format == 'xml':
-            # Parse XML data and convert it to dictionary
             root = ET.fromstring(data)
-            deserialized_data = {elem.tag: elem.text for elem in root}
-            return deserialized_data
+            return {elem.tag: elem.text for elem in root}
         else:
-            # Deserialize data using pickle (default)
-            deserialized_data = pickle.loads(data)
-            return deserialized_data
+            return pickle.loads(data)
     except Exception as e:
-        # Handle deserialization errors
         print(f"Deserialization error: {e}")
         return None
