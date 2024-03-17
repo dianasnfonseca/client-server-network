@@ -25,6 +25,9 @@ def send_data(data, serialization_format):
 
         # Create socket object
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+            # Set SO_REUSEADDR option
+            client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            
             # Connect to server
             client_socket.connect((SERVER_IP, SERVER_PORT))
             print("Connected to server.")

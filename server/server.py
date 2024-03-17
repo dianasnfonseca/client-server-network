@@ -3,18 +3,10 @@ import configparser
 from serialization import deserialize_data
 
 def receive_data(client_socket):
-    """
-    Receive and process data from the client.
-
-    Args:
-        client_socket: Socket object for the client connection.
-
-    Returns:
-        None
-    """
     try:
         # Receive serialization format and length of serialized data from the client
         format_length_data = client_socket.recv(1024).decode().strip()
+        print("Received data from client:", format_length_data)
         format_choice, length_data = format_length_data.split(" ")
         print("Serialization format received from client:", format_choice)
         print("Received length data:", length_data)
@@ -49,6 +41,9 @@ if __name__ == "__main__":
 
         # Create socket object
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+            # Set SO_REUSEADDR option
+            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            
             # Extract server IP and port from configuration
             SERVER_IP = '127.0.0.1'
             SERVER_PORT_STRING = config['SERVER']['PORT'].strip()
