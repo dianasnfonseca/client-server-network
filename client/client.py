@@ -65,11 +65,15 @@ def send_data(data, serialization_format, file_path=None, encrypt_file=False):
                         if encrypted_file_data:
                             file_length = len(encrypted_file_data)
                             client_socket.sendall(str(file_length).encode())  # Send file data length
+                            # Wait for acknowledgment from the server
+                            client_socket.recv(1024)
                             client_socket.sendall(encrypted_file_data)
                             print("Encrypted file data sent to server.")
                     else:
                         file_length = len(file_data)
                         client_socket.sendall(str(file_length).encode())  # Send file data length
+                        # Wait for acknowledgment from the server
+                        client_socket.recv(1024)
                         client_socket.sendall(file_data)
                         print("File data sent to server.")
 

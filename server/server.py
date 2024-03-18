@@ -51,6 +51,7 @@ def receive_data(client_socket, config):
         # Receive file if sent
         file_length = int(client_socket.recv(1024).decode())
         print("Length of file data:", file_length)
+        client_socket.sendall(b'ACK')  # Send acknowledgment back to the client
         file_data = b""
         while len(file_data) < file_length:
             chunk = client_socket.recv(min(file_length - len(file_data), 1024))
