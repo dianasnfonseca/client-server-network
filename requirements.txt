@@ -1,2 +1,2 @@
- there are no external dependencies that need to be installed separately.
+There are no external dependencies that need to be installed separately.
 Ensure you have Python 3.x installed on your machine.
