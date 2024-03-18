@@ -49,8 +49,8 @@ Received data from the client: json 40
 Serialization format received from the client: json
 Received length data: 40
 Length of serialized data: 40
-Serialized data received from the client (40 bytes): b'{"name": "Diana", "group": "D"}'
-Received dictionary: {"name": "Diana", "group": "D"}
+Serialized data received from the client (40 bytes): b'{"name": "Diana", "role": "SD & tester"}'
+Received dictionary: {'name': 'Diana', 'role': 'SD & tester'}
 Length of file data: 120
 File data received from the client: b'gAAAAABl-IwhOySGHjYgYWECJDqhmhyCLEDds5mtEMTQZ-xYHTnBaUrMD01-Gz8wXQiQUfgh5WEuVdvIiq1AUfIcsnpWRdeQFs08fdPkWWOYZmKbFu_yWzc='
 ```
@@ -64,7 +64,7 @@ Choose serialization format:
 Enter your choice (1/2/3): 1
 Enter the file path to send (leave blank to skip): sample.txt
 Encrypt file? (yes/no): yes
-Data serialized to JSON format: b'{"name": "Diana", "group": "D"}'
+Data serialized to JSON format: b'{"name": "Diana", "role": "SD & tester"}'
 ```
 
 ---
